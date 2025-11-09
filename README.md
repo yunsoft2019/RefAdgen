@@ -1,4 +1,4 @@
-# RefAdgen - 广告图像生成系统
+# RefAdgen - 高保真广告图像生成
 
 ## 1. 环境部署
 
@@ -376,6 +376,8 @@ RefAdgen/
 ## 7. 引用
 
 如果您使用了本项目，请引用以下论文：
+
+**论文链接**: [arXiv:2508.11695](https://arxiv.org/abs/2508.11695)
 
 ```bibtex
 @article{chen2025refadgen,
