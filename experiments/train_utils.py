@@ -11,6 +11,10 @@ from accelerate.utils import set_seed, DummyOptim, DummyScheduler
 from transformers import CLIPTextModel, CLIPTokenizer, CLIPVisionModelWithProjection
 from diffusers import AutoencoderKL, UNet2DConditionModel, DDIMScheduler
 from diffusers.optimization import get_scheduler
+try:
+    from huggingface_hub import hf_hub_download
+except ImportError:
+    hf_hub_download = None
 
 from utils.resampler import Resampler
 from utils.attention_processor import HiddenStateCacheAttnProcessor, ScaledDotProductAttentionProcessor, \
@@ -27,11 +31,47 @@ class TrainUtils:
         self.logging_dir = Path(args.output_dir) / args.logging_dir
         self.report_to = args.report_to
         self.gradient_accumulation_steps = args.gradient_accumulation_steps
-        # 确保路径是绝对路径，并去掉末尾的斜杠
-        self.base_model_path = str(Path(args.base_model_path).resolve())
-        self.vae_model_path = str(Path(args.vae_model_path).resolve())
-        self.image_encoder_path = str(Path(args.image_encoder_path).resolve())
-        self.adapter_model_path = args.adapter_model_path
+        # 检查是否为 HuggingFace 模型 ID（包含 / 但不以 / 开头，且路径不存在）
+        # 如果是 HuggingFace 模型 ID，直接使用；否则解析为绝对路径
+        def is_hf_model_id(path):
+            return "/" in path and not path.startswith("/") and not Path(path).exists()
+        
+        if is_hf_model_id(args.base_model_path):
+            self.base_model_path = args.base_model_path  # HuggingFace 模型 ID
+        else:
+            self.base_model_path = str(Path(args.base_model_path).resolve())  # 本地路径
+        
+        if is_hf_model_id(args.vae_model_path):
+            self.vae_model_path = args.vae_model_path  # HuggingFace 模型 ID
+        else:
+            self.vae_model_path = str(Path(args.vae_model_path).resolve())  # 本地路径
+        
+        # 处理 image_encoder_path：支持 HuggingFace 模型 ID 或子目录路径
+        if is_hf_model_id(args.image_encoder_path):
+            # 检查是否是子目录格式（如 h94/IP-Adapter/models/image_encoder）
+            parts = args.image_encoder_path.split("/")
+            if len(parts) >= 3:
+                # 可能是 org/repo/subfolder 格式，保存完整路径用于后续解析
+                self.image_encoder_path = args.image_encoder_path
+                self.image_encoder_subfolder = None  # 稍后解析
+            else:
+                # 标准模型 ID 格式
+                self.image_encoder_path = args.image_encoder_path
+                self.image_encoder_subfolder = None
+        else:
+            self.image_encoder_path = str(Path(args.image_encoder_path).resolve())  # 本地路径
+            self.image_encoder_subfolder = None
+        
+        # 处理 adapter_model_path：支持 HuggingFace 文件路径（格式：org/repo/path/to/file）
+        if "/" in args.adapter_model_path and not args.adapter_model_path.startswith("/") and not Path(args.adapter_model_path).exists():
+            # 可能是 HuggingFace 路径，格式：org/repo/path/to/file.bin
+            parts = args.adapter_model_path.split("/")
+            if len(parts) >= 3:  # 至少 org/repo/file 格式
+                self.adapter_model_path = args.adapter_model_path  # 保存完整路径，稍后下载
+            else:
+                self.adapter_model_path = str(Path(args.adapter_model_path).resolve())
+        else:
+            self.adapter_model_path = str(Path(args.adapter_model_path).resolve())
         self.lr_scheduler = args.lr_scheduler
         self.num_warmup_steps = args.num_warmup_steps
         self.max_train_steps = args.max_train_steps
@@ -95,7 +135,24 @@ class TrainUtils:
         text_encoder = CLIPTextModel.from_pretrained(self.base_model_path, subfolder="text_encoder")
         unet = UNet2DConditionModel.from_pretrained(self.base_model_path, subfolder="unet")
         vae = AutoencoderKL.from_pretrained(self.vae_model_path)
-        image_encoder = CLIPVisionModelWithProjection.from_pretrained(self.image_encoder_path)
+        # 处理 image_encoder_path：如果是子目录格式，解析为 repo_id 和 subfolder
+        image_encoder_path = self.image_encoder_path
+        image_encoder_subfolder = None
+        if "/" in self.image_encoder_path and not self.image_encoder_path.startswith("/") and not Path(self.image_encoder_path).exists():
+            parts = self.image_encoder_path.split("/")
+            if len(parts) >= 3:
+                # 格式：org/repo/subfolder/path
+                repo_id = f"{parts[0]}/{parts[1]}"
+                subfolder = "/".join(parts[2:])
+                # 检查 repo_id 是否是有效的 HuggingFace 模型
+                # 如果是，使用 subfolder 参数
+                image_encoder_path = repo_id
+                image_encoder_subfolder = subfolder
+        
+        if image_encoder_subfolder:
+            image_encoder = CLIPVisionModelWithProjection.from_pretrained(image_encoder_path, subfolder=image_encoder_subfolder)
+        else:
+            image_encoder = CLIPVisionModelWithProjection.from_pretrained(image_encoder_path)
         return tokenizer, text_encoder, unet, vae, image_encoder
 
     @staticmethod
@@ -130,7 +187,21 @@ class TrainUtils:
             output_dim=unet.config.cross_attention_dim,
             ff_mult=4
         )
-        ipa_weight = torch.load(self.adapter_model_path, map_location="cpu")
+        # 如果是 HuggingFace 路径，先下载文件
+        adapter_path = self.adapter_model_path
+        if "/" in self.adapter_model_path and not self.adapter_model_path.startswith("/") and not Path(self.adapter_model_path).exists():
+            # 解析 HuggingFace 路径：org/repo/path/to/file.bin
+            parts = self.adapter_model_path.split("/")
+            if len(parts) >= 3 and hf_hub_download is not None:
+                repo_id = f"{parts[0]}/{parts[1]}"  # org/repo
+                filename = "/".join(parts[2:])  # path/to/file.bin
+                try:
+                    adapter_path = hf_hub_download(repo_id=repo_id, filename=filename, cache_dir=None)
+                except Exception as e:
+                    logger.warning(f"Failed to download from HuggingFace: {e}, trying local path")
+                    adapter_path = self.adapter_model_path
+        
+        ipa_weight = torch.load(adapter_path, map_location="cpu")
         image_proj.load_state_dict(ipa_weight['image_proj'])
         return image_proj
 

@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+import time
 
 BASE_DIR = Path(__file__).parent.parent.absolute().as_posix()
 sys.path.append(BASE_DIR)
@@ -30,6 +31,11 @@ from experiments.predict_utils import PredictUtils
 
 class Predictor:
     def __init__(self, args):
+        print("=" * 60)
+        print("开始加载模型...")
+        print("=" * 60)
+        model_load_start_time = time.time()
+        
         self.args = args
         predict_utils = PredictUtils(args)
         vae, tokenizer, text_encoder, image_encoder, unet = predict_utils.init_models()
@@ -53,8 +59,19 @@ class Predictor:
         self.model_ckpt = args.model_ckpt
         self.image_file = args.image_file
         self.num_samples = args.num_samples
+        
+        model_load_end_time = time.time()
+        model_load_time = model_load_end_time - model_load_start_time
+        print("=" * 60)
+        print(f"模型加载完成！耗时: {model_load_time:.2f} 秒 ({model_load_time/60:.2f} 分钟)")
+        print("=" * 60)
 
     def execute(self):
+        print("=" * 60)
+        print("开始推理...")
+        print("=" * 60)
+        inference_start_time = time.time()
+        
         prompt = self.prompt
         prompt = prompt + ', best quality, high quality'
         null_prompt = ''
@@ -76,6 +93,18 @@ class Predictor:
             generator=self.generator,
             num_inference_steps=30,
         ).images
+        
+        inference_end_time = time.time()
+        inference_time = inference_end_time - inference_start_time
+        single_image_time = inference_time / self.num_samples if self.num_samples > 0 else inference_time
+        
+        print("=" * 60)
+        print(f"推理完成！")
+        print(f"  总推理时间: {inference_time:.2f} 秒 ({inference_time/60:.2f} 分钟)")
+        print(f"  生成图片数量: {self.num_samples}")
+        print(f"  单张图片推理时间: {single_image_time:.2f} 秒")
+        print("=" * 60)
+        
         for idx, output in enumerate(outputs):
             output_image = output.resize(self.size)
             save_path = Path(self.output_dir + '/' + self.model_ckpt) / "images"

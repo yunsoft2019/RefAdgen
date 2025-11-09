@@ -1,3 +1,4 @@
+from pathlib import Path
 from PIL import Image
 import torch
 from diffusers import UNet2DConditionModel, AutoencoderKL, DDIMScheduler
@@ -17,9 +18,29 @@ class PredictUtils:
     def __init__(self, args):
         self.args = args
         self.device = args.device
-        self.vae_model_path = args.vae_model_path
-        self.base_model_path = args.base_model_path
-        self.image_encoder_path = args.image_encoder_path
+        
+        # 检查是否为 HuggingFace 模型 ID（包含 / 但不以 / 开头，且路径不存在）
+        def is_hf_model_id(path):
+            return "/" in path and not path.startswith("/") and not Path(path).exists()
+        
+        # 处理 base_model_path
+        if is_hf_model_id(args.base_model_path):
+            self.base_model_path = args.base_model_path  # HuggingFace 模型 ID
+        else:
+            self.base_model_path = str(Path(args.base_model_path).resolve())  # 本地路径
+        
+        # 处理 vae_model_path
+        if is_hf_model_id(args.vae_model_path):
+            self.vae_model_path = args.vae_model_path  # HuggingFace 模型 ID
+        else:
+            self.vae_model_path = str(Path(args.vae_model_path).resolve())  # 本地路径
+        
+        # 处理 image_encoder_path：支持 HuggingFace 模型 ID 或子目录路径
+        if is_hf_model_id(args.image_encoder_path):
+            self.image_encoder_path = args.image_encoder_path  # HuggingFace 模型 ID 或子目录路径
+        else:
+            self.image_encoder_path = str(Path(args.image_encoder_path).resolve())  # 本地路径
+        
         self.output_dir = args.output_dir
         self.model_ckpt = args.model_ckpt
         self.image_file = args.image_file
@@ -46,7 +67,24 @@ class PredictUtils:
         text_encoder = CLIPTextModel.from_pretrained(self.base_model_path,
                                                      subfolder="text_encoder").to(
             dtype=torch.float16, device=self.device)
-        image_encoder = CLIPVisionModelWithProjection.from_pretrained(self.image_encoder_path).to(
+        
+        # 处理 image_encoder_path：如果是子目录格式，解析为 repo_id 和 subfolder
+        image_encoder_path = self.image_encoder_path
+        image_encoder_subfolder = None
+        if "/" in self.image_encoder_path and not self.image_encoder_path.startswith("/") and not Path(self.image_encoder_path).exists():
+            parts = self.image_encoder_path.split("/")
+            if len(parts) >= 3:
+                # 格式：org/repo/subfolder/path
+                repo_id = f"{parts[0]}/{parts[1]}"
+                subfolder = "/".join(parts[2:])
+                image_encoder_path = repo_id
+                image_encoder_subfolder = subfolder
+        
+        if image_encoder_subfolder:
+            image_encoder = CLIPVisionModelWithProjection.from_pretrained(image_encoder_path, subfolder=image_encoder_subfolder).to(
+            dtype=torch.float16, device=self.device)
+        else:
+            image_encoder = CLIPVisionModelWithProjection.from_pretrained(image_encoder_path).to(
             dtype=torch.float16, device=self.device)
         unet_model_path = self.base_model_path
         unet_subfolder = "unet"

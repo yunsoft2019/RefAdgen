@@ -219,51 +219,134 @@ RefAdgen/
 
 ![Figure 1](pdf/images/figure01_page1.png)
 
+**Figure 1:** Examples of generated advertisement images.
+
 ### 3.2 Figure 2
 
 ![Figure 2](pdf/images/figure02_page1.png)
+
+**Figure 2:** The construction pipeline of AdProd-100K. Starting from the advertising images, we first construct triplets by extracting the product images and textual scene description, and then enhance them with dual data augmentation.
 
 ### 3.3 Figure 3
 
 ![Figure 3](pdf/images/figure03_page1.png)
 
+**Figure 3:** The overall model architecture of RefAdGen, featuring a decoupled dual U-Net design. The Generation U-Net receives the noisy latent and the product mask M' at its input for spatial control. At each level of the network, the Attention Fusion Module (AFM) fuses identity features from the Reference U-Net with the scene features of the Generation U-Net.
+
 ### 3.4 Figure 4
 
 ![Figure 4](pdf/images/figure04_page1.png)
+
+**Figure 4:** Qualitative comparisons on AdProd-100K. Prompts are simplified for clarity. Both the training samples on the left and the test samples on the right showcase the consistent advantages of RefAdGen in identity consistency, scene realism, and overall aesthetic quality.
 
 ### 3.5 Figure 5
 
 ![Figure 5](pdf/images/figure05_page1.png)
 
+**Figure 5:** Qualitative comparison on in-the-wild images. The inputs are real-world photos captured using mobile phones, from which our pipeline automatically segments the product image and generates advertising images using RefAdGen.
+
 ### 3.6 Figure 6
 
 ![Figure 6](pdf/images/figure06_page1.png)
+
+**Figure 6:** Qualitative ablation analysis of architectural components. The Full Model better preserves details, while the ablation variant without U-Net input masks exhibits degradation in object placement precision and scene coherence.
 
 ### 3.7 Figure 7
 
 ![Figure 7](pdf/images/figure07_page1.png)
 
+**Figure 7:** Qualitative ablation analysis of the Dual Augmentation strategy. With augmentation, the generation results exhibit substantially enhanced visual clarity and improved robustness compared to the non-augmented baseline.
+
 ### 3.8 Figure 8
 
 ![Figure 8](pdf/images/figure08_page1.png)
+
+**Figure 8:** Image generation fidelity improves markedly and remains consistently high for all λ values above 0.7.
 
 ### 3.9 Figure 9
 
 ![Figure 9](pdf/images/figure09_page1.png)
 
+**Figure 9:** Visualization of the denoising process.
+
 **注意**：所有图片已从 PDF 文件中提取，保存在 `pdf/images/` 目录下。如需查看所有提取的图片，请访问该目录。
 
 ---
 
-## 4. 使用方法
+## 4. 论文表格
 
-### 4.1 训练
+论文中的表格如下：
+
+### 4.1 Table 1: 数据集类别统计
+
+| Category | Num | Category | Num | Category | Num |
+|----------|-----|----------|-----|----------|-----|
+| Backpack | 25000 | Eyeshadow | 13960 | Pens | 14650 |
+| Bench | 21855 | Fork | 18115 | Pillows | 14595 |
+| Body wash | 25000 | Foundation | 10715 | Rugs | 8760 |
+| Bottle | 25000 | Handbag | 25000 | Shampoo | 22990 |
+| Car | 25000 | Hats | 36740 | Snacks | 24990 |
+| Cell phone | 25000 | Headphones | 22645 | Sneakers | 24995 |
+| Chargers | 21095 | Kite | 13030 | Sports ball | 7045 |
+| Clothing | 24995 | Lipstick | 10585 | Toothbrush | 7105 |
+| Coffee | 24275 | Motorcycle | 24995 | Umbrella | 15675 |
+| Cup | 16860 | Notebooks | 24995 | Wine glass | 24990 |
+
+**Table 1:** 30 categories and their sample counts.
+
+### 4.2 Table 2: 超参数配置
+
+| Hyperparameter | Value | Hyperparameter | Value |
+|----------------|-------|----------------|-------|
+| Optimizer | AdamW | Weight Decay | 0.01 |
+| Batch Size | 3 | Learning Rate | 1×10⁻⁵ |
+| Noise Offset | 0.05 | LR Scheduler | Linear |
+| Training Epochs | 8 | Warmup Steps | 500 |
+
+**Table 2:** Hyperparameter configuration for the model.
+
+### 4.3 Table 3: 性能对比
+
+| Model | CLIP Score↑ | FID↓ | ImageReward↑ | MP-LPIPS↓ | LPIPS↓ |
+|-------|-------------|------|--------------|-----------|--------|
+| IP-Adapter | 32.6308 | 62.6666 | -0.2572 | 0.3974 | 0.7159 |
+| T2I-Adapter | 34.2737 | 59.1770 | 0.1777 | 0.3382 | 0.6063 |
+| InstructPix2Pix | 32.4433 | 64.1141 | -0.5842 | 0.3517 | 0.6336 |
+| ControlNet | 33.0226 | 57.1835 | -0.3668 | 0.3748 | 0.6578 |
+| **RefAdGen (Ours)** | **34.5106** | **50.5843** | **0.2391** | **0.2612** | **0.5487** |
+
+**Table 3:** Performance comparison of our model (RefAdGen) against several baselines on five key metrics. The arrow indicates whether a higher value (↑) or a lower value (↓) is better. The **best** result in each column is highlighted in bold.
+
+### 4.4 Table 4: 消融实验
+
+| Configuration | CLIP Score↑ | FID↓ | ImageReward↑ | MP-LPIPS↓ | LPIPS↓ |
+|---------------|-------------|------|--------------|-----------|--------|
+| **Full Model (Ours)** | **34.5106** | **50.5843** | **0.2391** | **0.2612** | **0.5487** |
+| w/o Masks | 33.2415 | 55.0244 | -0.2293 | 0.3638 | 0.6602 |
+| w/o Dual Augmentation | 32.7952 | 68.7243 | -0.3554 | 0.3014 | 0.6064 |
+
+**Table 4:** Ablation study of our framework's core components and data strategy. "Full Model" represents our complete design, while each subsequent row ablates one key element. The results highlight the critical contributions of each component. The **best** score in each column is highlighted in bold.
+
+### 4.5 Table 5: 用户研究
+
+| | RefAdGen | ControlNet | IP2P | IP-Adapter | T2I |
+|---|----------|------------|------|------------|-----|
+| J2b | **38.70** | 23.60 | 8.40 | 0.90 | 28.40 |
+| G2R | **90.70** | 77.30 | 47.30 | 6.70 | 78.00 |
+
+**Table 5:** Results of our user study comparing RefAdGen with baseline methods. The **best** score is highlighted in bold.
+
+---
+
+## 5. 使用方法
+
+### 5.1 训练
 
 ```bash
 ./train.sh
 ```
 
-### 4.2 推理
+### 5.2 推理
 
 ```bash
 ./predict.sh
@@ -271,7 +354,7 @@ RefAdgen/
 
 ---
 
-## 5. 注意事项
+## 6. 注意事项
 
 1. 确保所有外部模型已正确下载并放置在对应目录
 2. 训练和推理时确保 GPU 可用
