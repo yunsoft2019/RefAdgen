@@ -14,7 +14,8 @@ dist/
 build/
 
 # 输出目录
-outputs/
+outputs/*
+!outputs/.gitkeep
 logs/
 *.log
 
