@@ -1,0 +1,52 @@
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# 输出目录
+outputs/
+logs/
+*.log
+
+# 数据文件（如果很大）
+# data_sources/
+# weights/
+
+# 临时文件
+*.tmp
+*.bak
+*.swp
+*~
+
+# 环境变量
+.env
+.venv
+venv/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 模型权重文件（如果很大，可以选择性忽略）
+# *.pth
+# *.pt
+# *.ckpt
+# *.bin
+
+# PDF 提取的图片（如果太大可以忽略）
+# pdf/images/
+

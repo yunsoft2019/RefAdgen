@@ -1,8 +1,28 @@
 from pathlib import Path
 import sys
 
-BASE_DIR = Path("__file__").parent.absolute().as_posix()
+BASE_DIR = Path(__file__).parent.parent.absolute().as_posix()
 sys.path.append(BASE_DIR)
+# 添加 GroundingDINO 路径（尝试两种可能的目录名）
+for dir_name in ["external_models", "exteral_models"]:
+    GROUNDINGDINO_PATH = Path(BASE_DIR) / dir_name / "GroundingDINO"
+    if GROUNDINGDINO_PATH.exists():
+        sys.path.insert(0, str(GROUNDINGDINO_PATH))
+        break
+# 添加 SAM2 路径（尝试多种可能的目录名）
+for dir_name in ["external_models", "exteral_models"]:
+    SAM2_PATH = Path(BASE_DIR) / dir_name / "SAM2"
+    if SAM2_PATH.exists():
+        sys.path.insert(0, str(SAM2_PATH))
+        break
+# 如果 SAM2 在项目根目录
+SAM2_ROOT = Path(BASE_DIR) / "sam2"
+if SAM2_ROOT.exists():
+    sys.path.insert(0, str(SAM2_ROOT))
+# 尝试绝对路径（从 build_product.py 中看到的路径）
+SAM2_ABS_PATH = Path("/mnt/c/Projects/ModelDebugging/sam2")
+if SAM2_ABS_PATH.exists():
+    sys.path.insert(0, str(SAM2_ABS_PATH))
 
 from experiments.arguments import parse_args
 from experiments.predict_utils import PredictUtils

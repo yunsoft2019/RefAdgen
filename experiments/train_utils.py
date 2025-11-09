@@ -27,9 +27,10 @@ class TrainUtils:
         self.logging_dir = Path(args.output_dir) / args.logging_dir
         self.report_to = args.report_to
         self.gradient_accumulation_steps = args.gradient_accumulation_steps
-        self.base_model_path = args.base_model_path
-        self.vae_model_path = args.vae_model_path
-        self.image_encoder_path = args.image_encoder_path
+        # 确保路径是绝对路径，并去掉末尾的斜杠
+        self.base_model_path = str(Path(args.base_model_path).resolve())
+        self.vae_model_path = str(Path(args.vae_model_path).resolve())
+        self.image_encoder_path = str(Path(args.image_encoder_path).resolve())
         self.adapter_model_path = args.adapter_model_path
         self.lr_scheduler = args.lr_scheduler
         self.num_warmup_steps = args.num_warmup_steps

@@ -18,6 +18,24 @@ logger = logging.get_logger(__name__)
 class GenPipe(StableDiffusionPipeline):
     model_cpu_offload_seq = "text_encoder->image_encoder->unet->vae"
     _optional_components = ["safety_checker", "feature_extractor"]
+    
+    @property
+    def _execution_device(self):
+        r"""
+        Returns the device on which the pipeline's models will be executed. After calling
+        [`~StableDiffusionPipeline.enable_sequential_cpu_offload`], the execution device can only be inferred from
+        Accelerate's module hooks.
+        """
+        if not hasattr(self.unet, "_hf_hook"):
+            return self.unet.device
+        for module in self.unet.modules():
+            if (
+                hasattr(module, "_hf_hook")
+                and hasattr(module._hf_hook, "execution_device")
+                and module._hf_hook.execution_device is not None
+            ):
+                return torch.device(module._hf_hook.execution_device)
+        return self.unet.device
 
     def __init__(
             self,

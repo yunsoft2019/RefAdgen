@@ -112,7 +112,8 @@ class PredictUtils:
         return ref_unet
 
     def load_state(self, unet, ref_unet, image_proj, adapter_modules):
-        model_ckpt = self.output_dir + '/' + self.model_ckpt + '/mp_rank_00_model_states.pt'
+        # DeepSpeed 保存格式: outputs/checkpoint-{step}/pytorch_model/mp_rank_00_model_states.pt
+        model_ckpt = self.output_dir + '/checkpoint-' + self.model_ckpt + '/pytorch_model/mp_rank_00_model_states.pt'
         model_sd = torch.load(model_ckpt, map_location="cpu")["module"]
 
         ref_unet_dict = {}
