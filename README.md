@@ -371,3 +371,18 @@ RefAdgen/
 - **Diffusers**: 0.35.2
 - **Transformers**: 4.57.1
 
+---
+
+## 7. 引用
+
+如果您使用了本项目，请引用以下论文：
+
+```bibtex
+@article{chen2025refadgen,
+  title={RefAdGen: High-Fidelity Advertising Image Generation},
+  author={Chen, Yiyun and Yang, Weikai},
+  journal={arXiv preprint arXiv:2508.11695},
+  year={2025}
+}
+```
+
