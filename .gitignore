@@ -51,3 +51,22 @@ Thumbs.db
 # pdf/images/
 
 RefAdgen/
+
+# 超过 2GB 的大文件（GitHub LFS 限制）
+external_models/image_encoder/model.safetensors
+external_models/image_encoder/pytorch_model.bin
+external_models/IP-Adapter/models/model.safetensors
+external_models/IP-Adapter/models/pytorch_model.bin
+external_models/Realistic_Vision_V4.0_noVAE/Realistic_Vision_V4.0-inpainting.ckpt
+external_models/Realistic_Vision_V4.0_noVAE/Realistic_Vision_V4.0-inpainting.safetensors
+external_models/Realistic_Vision_V4.0_noVAE/Realistic_Vision_V4.0.ckpt
+external_models/Realistic_Vision_V4.0_noVAE/Realistic_Vision_V4.0.safetensors
+external_models/Realistic_Vision_V4.0_noVAE/unet/diffusion_pytorch_model.safetensors
+external_models/stable-diffusion-v1-5/unet/diffusion_pytorch_model.bin
+external_models/stable-diffusion-v1-5/unet/diffusion_pytorch_model.non_ema.bin
+external_models/stable-diffusion-v1-5/unet/diffusion_pytorch_model.non_ema.safetensors
+external_models/stable-diffusion-v1-5/unet/diffusion_pytorch_model.safetensors
+external_models/stable-diffusion-v1-5/v1-5-pruned-emaonly.ckpt
+external_models/stable-diffusion-v1-5/v1-5-pruned-emaonly.safetensors
+external_models/stable-diffusion-v1-5/v1-5-pruned.ckpt
+external_models/stable-diffusion-v1-5/v1-5-pruned.safetensors
