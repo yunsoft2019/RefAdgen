@@ -148,7 +148,7 @@ export TORCH_CUDA_ARCH_LIST="8.0;8.6;8.9;9.0"
 
 SAM2 must be installed so that Hydra can resolve the config name used by `build_sam2()`. The code references:
 - `model_cfg = "configs/sam2.1/sam2.1_hiera_l.yaml"` which is loaded from the installed `sam2` package (e.g., `<site-packages>/sam2/configs/sam2.1/sam2.1_hiera_l.yaml`)
-- `checkpoint = "external_models/SAM2/sam2.1_hiera_large.pt"` which should exist in this repository at `external_models/SAM2/`
+- The checkpoint is downloaded automatically from Hugging Face via `hf_hub_download` using `--sam2_repo_id` (default: `facebook/sam2.1-hiera-large`). No local checkpoint file is required.
 
 Install SAM2 (choose one):
 ```bash
@@ -159,13 +159,12 @@ pip install -e /path/to/sam2
 pip install -e git+https://github.com/facebookresearch/segment-anything-2.git#egg=sam2
 ```
 
-Prepare assets in this repo:
+Configure repository (optional):
 ```bash
-# Place the checkpoint with the exact filename here:
-# external_models/SAM2/sam2.1_hiera_large.pt
-
-# The code already points to the package config name:
-# configs/sam2.1/sam2.1_hiera_l.yaml (resolved from installed sam2)
+# You can override the repo via CLI or predict.sh:
+# --sam2_repo_id="facebook/sam2.1-hiera-large"
+# If you must run offline, manually place the checkpoint at the path you choose
+# and modify the code to read from a local file.
 ```
 
 If you prefer to keep the YAML config in this repository instead of relying on the installed package, you will need to extend Hydra's config search path to include your local directory, or modify the SAM2 loader to accept absolute file paths rather than Hydra config names.
