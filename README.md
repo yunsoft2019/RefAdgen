@@ -198,7 +198,6 @@ RefAdgen/
 │   └── predict_utils.py   # Inference utilities
 ├── external_models/        # External models directory
 │   ├── GroundingDINO/     # GroundingDINO model
-│   ├── IP-Adapter/        # IP-Adapter model
 │   └── ...
 ├── jsons/                  # Configuration files
 ├── models/                 # Model definitions
