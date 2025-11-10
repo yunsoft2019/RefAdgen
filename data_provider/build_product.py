@@ -4,6 +4,7 @@ from torchvision.ops import box_convert
 from groundingdino.util.inference import load_model, load_image, predict
 from PIL import Image
 import numpy as np
+from huggingface_hub import hf_hub_download
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 
@@ -14,9 +15,10 @@ warnings.filterwarnings("ignore", category=FutureWarning, module="transformers")
 
 
 class BuildProduct:
-    def __init__(self, image_file, image_type):
+    def __init__(self, image_file, image_type, sam2_repo_id: str = "facebook/sam2.1-hiera-large"):
         self.image_file = image_file
         self.image_type = image_type
+        self.sam2_repo_id = sam2_repo_id
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.box = self.get_dino_box()
         self.ad_image = Image.open(self.image_file)
@@ -47,7 +49,18 @@ class BuildProduct:
     def get_masks(self):
         image = np.array(self.ad_image.convert("RGB"))
         with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
-            checkpoint = "/mnt/c/Projects/ModelDebugging/sam2/checkpoints/sam2.1_hiera_large.pt"
+            # Prefer Hugging Face cached checkpoint; fallback to local file if needed
+            try:
+                checkpoint = hf_hub_download(
+                    repo_id=self.sam2_repo_id,
+                    filename="sam2.1_hiera_large.pt"
+                )
+            except Exception as e:
+                raise RuntimeError(
+                    "Failed to download SAM2 checkpoint from Hugging Face "
+                    f"({self.sam2_repo_id}:sam2.1_hiera_large.pt). "
+                    "Please ensure internet access and that the repository is reachable."
+                ) from e
             model_cfg = "configs/sam2.1/sam2.1_hiera_l.yaml"
             predictor = SAM2ImagePredictor(build_sam2(model_cfg, checkpoint))
             predictor.set_image(image)

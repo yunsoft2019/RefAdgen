@@ -228,7 +228,7 @@ class PredictUtils:
         return clip_image_processor
 
     def build_product(self):
-        build_product = BuildProduct(self.image_file, self.image_type)
+        build_product = BuildProduct(self.image_file, self.image_type, sam2_repo_id=self.args.sam2_repo_id)
         product_image, mask_tensor, size = build_product.execute()
         product_image = self.resize_img(product_image)
         mask_tensor = mask_tensor.to(self.device)

@@ -133,6 +133,12 @@ def parse_args():
     parser.add_argument('--device', type=str, default="cuda:0",help="Specifies the device.")
     parser.add_argument('--prompt', type=str,  default="Input image file description.")
     parser.add_argument('--num_samples', type=int,  default=1000,help="Number of images generated per inference.")
+    parser.add_argument(
+        "--sam2_repo_id",
+        type=str,
+        default="facebook/sam2.1-hiera-large",
+        help="Hugging Face repo_id for SAM2 checkpoint (used to download sam2.1_hiera_large.pt)."
+    )
 
     args = parser.parse_args()
     env_local_rank = int(os.environ.get("LOCAL_RANK", -1))

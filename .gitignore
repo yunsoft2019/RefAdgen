@@ -71,3 +71,8 @@ external_models/stable-diffusion-v1-5/v1-5-pruned-emaonly.ckpt
 external_models/stable-diffusion-v1-5/v1-5-pruned-emaonly.safetensors
 external_models/stable-diffusion-v1-5/v1-5-pruned.ckpt
 external_models/stable-diffusion-v1-5/v1-5-pruned.safetensors
+
+# Project ignores
+.idea/
+RefAdgen/
+**/__pycache__/

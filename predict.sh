@@ -6,4 +6,5 @@ python experiments/predict.py \
   --image_type="backpack" \
   --prompt="A backpack rests on the green lawn in a park, surrounded by lush grass, red flowers, and green leaves." \
   --model_ckpt="900000" \
-  --num_samples=3
+  --num_samples=3 \
+  --sam2_repo_id="facebook/sam2.1-hiera-large"
