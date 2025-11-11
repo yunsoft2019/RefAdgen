@@ -123,6 +123,10 @@ pip install -e .
 cd ../..
 ```
 
+##### Model checkpoints
+
+- Download pretrained checkpoints from Hugging Face: [yiyun123/RefAdgen](https://huggingface.co/yiyun123/RefAdgen)
+
 #### Verify Installation
 
 ```bash
@@ -293,6 +297,20 @@ The tables from the paper are shown below:
 ```bash
 ./predict.sh
 ```
+
+### 5.3 Product extraction (GroundingDINO + SAM2)
+
+- Input: an advertisement image (Ad Image) and its category label (`image_type`).
+- Steps:
+  - Use GroundingDINO to predict the product bounding box in the Ad Image based on `image_type`.
+  - Use SAM2 with the predicted box as prompt to obtain the product segmentation mask.
+  - Cut out the product from the Ad Image using the mask to form the Product Image (RGBA → RGB).
+- Entry points:
+  - `data_provider/BuildProduct` executes the full pipeline.
+  - `experiments/predict_utils.py` calls `BuildProduct` during inference; no extra action needed when running `predict.sh`.
+- Outputs:
+  - Product images are saved under `data_sources/Product Image/`.
+  - A mask tensor is produced and passed into the generation pipeline for spatial control.
 
 ---
 
