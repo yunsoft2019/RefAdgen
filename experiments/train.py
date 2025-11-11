@@ -2,7 +2,7 @@ import time
 from pathlib import Path
 import sys
 
-BASE_DIR = Path("__file__").parent.absolute().as_posix()
+BASE_DIR = Path(__file__).parent.parent.absolute().as_posix()
 sys.path.append(BASE_DIR)
 
 import torch.nn.functional as fun

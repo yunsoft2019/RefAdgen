@@ -151,8 +151,13 @@ class PredictUtils:
 
     def load_state(self, unet, ref_unet, image_proj, adapter_modules):
         # DeepSpeed 保存格式: outputs/checkpoint-{step}/pytorch_model/mp_rank_00_model_states.pt
-        model_ckpt = self.output_dir + '/checkpoint-' + self.model_ckpt + '/pytorch_model/mp_rank_00_model_states.pt'
-        model_sd = torch.load(model_ckpt, map_location="cpu")["module"]
+        model_ckpt_path = Path(self.output_dir) / f'checkpoint-{self.model_ckpt}' / 'pytorch_model' / 'mp_rank_00_model_states.pt'
+        if not model_ckpt_path.exists():
+            raise FileNotFoundError(
+                f"模型检查点文件不存在: {model_ckpt_path}\n"
+                f"请确保检查点文件存在于: {model_ckpt_path.parent}"
+            )
+        model_sd = torch.load(str(model_ckpt_path), map_location="cpu")["module"]
 
         ref_unet_dict = {}
         unet_dict = {}

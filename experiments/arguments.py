@@ -123,9 +123,9 @@ def parse_args():
     parser.add_argument("--local_rank", type=int, default=-1, help="Identifies the local rank of the current process on the current node, typically set automatically by the launch script.")
     parser.add_argument(
         '--model_ckpt',
-        default="Specifies the path to the pretrained model checkpoint for loading the model's initial weights for training.",
-        
-        type=str
+        type=str,
+        default="900000",
+        help="Specifies the checkpoint step number (e.g., '900000') for loading the pretrained model weights."
     )
     parser.add_argument('--image_file', type=str, help="Input image file path and name.")
     parser.add_argument('--image_type', type=str, help="Specifies the image type.")
@@ -134,10 +134,10 @@ def parse_args():
     parser.add_argument('--prompt', type=str,  default="Input image file description.")
     parser.add_argument('--num_samples', type=int,  default=1000,help="Number of images generated per inference.")
     parser.add_argument(
-        "--sam2_repo_id",
+        '--sam2_repo_id',
         type=str,
         default="facebook/sam2.1-hiera-large",
-        help="Hugging Face repo_id for SAM2 checkpoint (used to download sam2.1_hiera_large.pt)."
+        help="Hugging Face repo id for SAM2 checkpoint used in object masking."
     )
 
     args = parser.parse_args()
