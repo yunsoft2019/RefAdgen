@@ -14,8 +14,7 @@ dist/
 build/
 
 # 输出目录
-outputs/*
-!outputs/.gitkeep
+outputs/
 logs/
 *.log
 
@@ -48,6 +47,8 @@ Thumbs.db
 # *.ckpt
 # *.bin
 
+# PDF 文件
+pdf/*_cmyk.pdf
 # PDF 提取的图片（如果太大可以忽略）
 # pdf/images/
 
