@@ -244,19 +244,19 @@ RefAdgen/
 ├── data_provider/          # Data provider module
 ├── data_sources/           # Data source directory
 ├── experiments/            # Training and inference scripts
-│   ├── train.py           # Training script
-│   ├── predict.py         # Inference script
-│   ├── train_utils.py     # Training utilities
-│   └── predict_utils.py   # Inference utilities
+│   ├── train.py            # Training script
+│   ├── predict.py          # Inference script
+│   ├── train_utils.py      # Training utilities
+│   └── predict_utils.py    # Inference utilities
 ├── external_models/        # External models directory
-│   ├── GroundingDINO/     # GroundingDINO model
+│   ├── GroundingDINO/      # GroundingDINO model
 │   └── ...
 ├── jsons/                  # Configuration files
 ├── models/                 # Model definitions
 ├── outputs/                # Output directory (training checkpoints, generated images)
 ├── utils/                  # Utility functions
-├── train.sh               # Training script
-└── predict.sh             # Inference script
+├── train.sh                # Training script
+└── predict.sh              # Inference script
 ```
 
 ---
