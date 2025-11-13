@@ -169,37 +169,37 @@ Configure repository (optional):
 
 If you prefer to keep the YAML config in this repository instead of relying on the installed package, you will need to extend Hydra's config search path to include your local directory, or modify the SAM2 loader to accept absolute file paths rather than Hydra config names.
 
-### 1.7 模型训练参数
+### 1.7 Training Parameters
 
-以下为训练时常用参数汇总（均可通过 `experiments/train.py` 的 CLI 传入；示例见 `train.sh`）。更多背景与模型卡请参考 [Hugging Face: RefAdgen](https://huggingface.co/yiyun123/RefAdgen)。
+The following table summarizes commonly used training parameters (all can be passed via CLI to `experiments/train.py`; see `train.sh` for examples). For more background and model cards, please refer to [Hugging Face: RefAdgen](https://huggingface.co/yiyun123/RefAdgen).
 
-| 参数 | 说明 | 示例/默认 |
-|------|------|-----------|
-| `--base_model_path` | 基座 Stable Diffusion 模型（本地路径或 HF repo id） | `stable-diffusion-v1-5/stable-diffusion-v1-5` |
-| `--vae_model_path` | VAE 模型（本地路径或 HF repo id） | `stabilityai/sd-vae-ft-mse` |
-| `--adapter_model_path` | IP-Adapter 权重路径 | `h94/IP-Adapter/models/ip-adapter-plus_sd15.bin` |
-| `--image_encoder_path` | CLIP 图像编码器（本地或 HF repo id/子目录） | `h94/IP-Adapter/models/image_encoder` |
-| `--dataset_json_path` | 训练数据 JSON 标注文件 | `./jsons/train_sd.json` |
-| `--train_data_path` | 训练数据根目录 | `./data_sources` |
-| `--seed` | 随机种子 | `None` |
-| `--clip_penultimate` | 是否使用 CLIP 倒数第二层特征 | `False` |
-| `--batch_size` | 每设备 batch size | `3` |
-| `--gradient_accumulation_steps` | 梯度累积步数 | `1` |
-| `--max_train_steps` | 最多训练步数（早停条件） | `100000000` |
-| `--train_epochs` | 训练轮数（与步数二选一或共同约束） | `100000`（默认） |
-| `--learning_rate` | 学习率 | `1e-5` |
-| `--weight_decay` | 权重衰减 | `0.01` |
-| `--lr_scheduler` | 学习率调度策略 | `constant`（支持 `linear`, `cosine`, `cosine_with_restarts`, `polynomial`, `constant`, `constant_with_warmup`） |
-| `--num_warmup_steps` | warmup 步数 | `2000` |
-| `--noise_offset` | 噪声偏移（提升亮暗区域质量） | `0.05`（默认） |
-| `--snr_gamma` | SNR 损失重加权系数 | `0`（默认） |
-| `--output_dir` | 输出目录（日志/ckpt） | `outputs` |
-| `--checkpointing_steps` | ckpt 保存频率（步数或 `epoch`） | `100` |
-| `--logging_dir` | 日志目录 | `logs` |
-| `--report_to` | 日志上报目标 | `tensorboard` |
-| `--local_rank` | 分布式本地 rank（自动设置） | `-1` |
+| Parameter | Description | Example/Default |
+|-----------|-------------|-----------------|
+| `--base_model_path` | Base Stable Diffusion model (local path or HF repo id) | `stable-diffusion-v1-5/stable-diffusion-v1-5` |
+| `--vae_model_path` | VAE model (local path or HF repo id) | `stabilityai/sd-vae-ft-mse` |
+| `--adapter_model_path` | IP-Adapter weights path | `h94/IP-Adapter/models/ip-adapter-plus_sd15.bin` |
+| `--image_encoder_path` | CLIP image encoder (local path or HF repo id/subdirectory) | `h94/IP-Adapter/models/image_encoder` |
+| `--dataset_json_path` | Training data JSON annotation file | `./jsons/train_sd.json` |
+| `--train_data_path` | Training data root directory | `./data_sources` |
+| `--seed` | Random seed | `None` |
+| `--clip_penultimate` | Whether to use CLIP penultimate layer features | `False` |
+| `--batch_size` | Batch size per device | `3` |
+| `--gradient_accumulation_steps` | Gradient accumulation steps | `1` |
+| `--max_train_steps` | Maximum training steps (early stopping condition) | `100000000` |
+| `--train_epochs` | Training epochs (alternative or combined constraint with steps) | `100000` (default) |
+| `--learning_rate` | Learning rate | `1e-5` |
+| `--weight_decay` | Weight decay | `0.01` |
+| `--lr_scheduler` | Learning rate scheduler strategy | `constant` (supports `linear`, `cosine`, `cosine_with_restarts`, `polynomial`, `constant`, `constant_with_warmup`) |
+| `--num_warmup_steps` | Warmup steps | `2000` |
+| `--noise_offset` | Noise offset (improves quality in bright/dark regions) | `0.05` (default) |
+| `--snr_gamma` | SNR loss reweighting coefficient | `0` (default) |
+| `--output_dir` | Output directory (logs/checkpoints) | `outputs` |
+| `--checkpointing_steps` | Checkpoint saving frequency (steps or `epoch`) | `100` |
+| `--logging_dir` | Logging directory | `logs` |
+| `--report_to` | Logging reporting target | `tensorboard` |
+| `--local_rank` | Distributed local rank (auto-set) | `-1` |
 
-与加速器/分布式相关的参数（如 `--use_deepspeed`、`--deepspeed_config_file`、`--mixed_precision`、`--gpu_ids` 等）在 `train.sh` 中通过 `accelerate launch` 指定，按需修改即可：
+Parameters related to accelerator/distributed training (such as `--use_deepspeed`, `--deepspeed_config_file`, `--mixed_precision`, `--gpu_ids`, etc.) are specified via `accelerate launch` in `train.sh` and can be modified as needed:
 
 ```bash
 accelerate launch \
@@ -211,15 +211,15 @@ accelerate launch \
   --dynamo_backend 'no' \
   --deepspeed_config_file "./jsons/zero_stage2_config.json" \
   experiments/train.py \
-  ...（其余训练参数见上表或 `train.sh`）
+  ... (other training parameters see table above or `train.sh`)
 ```
 
-### 1.8 模型参数
+### 1.8 Model Parameters
 
-- 训练好的模型参数存放于本地 `outputs/checkpoint-900000/` 目录（例如：`outputs/checkpoint-900000/pytorch_model/mp_rank_00_model_states.pt`）。
-- 已同步到 Hugging Face，便于下载与复现：
-  - 模型参数链接：[yiyun123/RefAdgen](https://huggingface.co/yiyun123/RefAdgen)
-- 推理时可在脚本或命令中设置 `--model_ckpt=900000` 来使用该检查点（参见 `predict.sh`）。
+- Trained model parameters are stored locally in the `outputs/checkpoint-900000/` directory (e.g., `outputs/checkpoint-900000/pytorch_model/mp_rank_00_model_states.pt`).
+- The model has been synchronized to Hugging Face for easy download and reproduction:
+  - Model parameters link: [yiyun123/RefAdgen](https://huggingface.co/yiyun123/RefAdgen)
+- During inference, you can set `--model_ckpt=900000` in scripts or commands to use this checkpoint (see `predict.sh`).
 
 ### 1.6 Common Issues
 
